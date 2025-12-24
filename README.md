@@ -67,7 +67,24 @@ git commit -m "Ready for deployment"
 git push
 ```
 
-### Step 2: Create a Web Service on Render
+### Step 2: Get SendGrid API Key (FREE - Recommended for Render)
+
+SendGrid is required because Render blocks Gmail SMTP ports.
+
+1. Go to https://signup.sendgrid.com/ and create a free account
+2. Verify your email address
+3. Go to Settings → API Keys → Create API Key
+4. Name it "Render Contact Form" and select "Full Access"
+5. **Copy the API key** (you won't see it again!)
+
+### Step 3: Verify Sender Email in SendGrid
+
+1. Go to Settings → Sender Authentication
+2. Click "Verify a Single Sender"
+3. Add your email: `amitksingh044@gmail.com`
+4. Check your email and verify it
+
+### Step 4: Create a Web Service on Render
 
 1. Go to [Render Dashboard](https://dashboard.render.com/)
 2. Click "New +" → "Web Service"
@@ -79,19 +96,19 @@ git push
    - **Start Command**: `npm start`
    - **Instance Type**: Free
 
-### Step 3: Set Environment Variables
+### Step 5: Set Environment Variables
 
 **IMPORTANT:** In Render dashboard, go to "Environment" tab and add these variables:
 
 ```
+SENDGRID_API_KEY=your_sendgrid_api_key_here
 EMAIL_USER=amitksingh044@gmail.com
-EMAIL_PASS=ebjw odaf yczn rnyu
 TO_EMAIL=amitksingh7779@gmail.com
 ```
 
-**Note:** Do NOT add PORT variable - Render sets this automatically.
+**Note:** `EMAIL_PASS` is not needed when using SendGrid.
 
-### Step 4: Deploy
+### Step 6: Deploy
 
 Click "Create Web Service" and wait for deployment to complete.
 

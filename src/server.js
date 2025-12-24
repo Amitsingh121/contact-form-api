@@ -3,29 +3,22 @@ const cors = require('cors');
 require('dotenv').config();
 
 const contactRoutes = require('./routes/contact.routes');
-const transporter = require('./config/email.config');
 
 // Validate required environment variables
-const requiredEnvVars = ['EMAIL_USER', 'EMAIL_PASS', 'TO_EMAIL'];
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
-
-if (missingEnvVars.length > 0) {
-  console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
-  console.error('Please set these in Render Environment settings');
+if (process.env.SENDGRID_API_KEY) {
+  console.log('✅ SendGrid API key is set');
+  console.log('FROM_EMAIL:', process.env.EMAIL_USER || 'Not set');
+  console.log('TO_EMAIL:', process.env.TO_EMAIL || 'Not set');
 } else {
-  console.log('✅ All required environment variables are set');
-  console.log('EMAIL_USER:', process.env.EMAIL_USER);
-  console.log('TO_EMAIL:', process.env.TO_EMAIL);
-  console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '***' + process.env.EMAIL_PASS.slice(-4) : 'NOT SET');
+  console.log('⚠️  No SendGrid API key found, using Gmail SMTP');
+  const requiredEnvVars = ['EMAIL_USER', 'EMAIL_PASS', 'TO_EMAIL'];
+  const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
   
-  // Test email connection
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.error('❌ Email connection failed:', error.message);
-    } else {
-      console.log('✅ Email server is ready to send messages');
-    }
-  });
+  if (missingEnvVars.length > 0) {
+    console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
+  } else {
+    console.log('✅ Gmail SMTP credentials are set');
+  }
 }
 
 const app = express();
