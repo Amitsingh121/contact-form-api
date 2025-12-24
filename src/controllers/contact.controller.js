@@ -1,26 +1,7 @@
-const express = require('express');
-const nodemailer = require('nodemailer');
-const cors = require('cors');
-require('dotenv').config();
+const transporter = require('../config/email.config');
 
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Email transporter setup
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
-// Contact form endpoint
-app.post('/api/contact', async (req, res) => {
+// Contact form submission handler
+const submitContactForm = async (req, res) => {
   try {
     const { name, email, phone, subject, description } = req.body;
 
@@ -63,14 +44,6 @@ app.post('/api/contact', async (req, res) => {
       message: 'Message send nahi hua, please try again'
     });
   }
-});
+};
 
-// Health check endpoint
-app.get('/', (req, res) => {
-  res.json({ status: 'API is running' });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+module.exports = { submitContactForm };
