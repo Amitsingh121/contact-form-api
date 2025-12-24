@@ -12,8 +12,10 @@ if (process.env.SENDGRID_API_KEY) {
     sendMail: async (mailOptions) => {
       const msg = {
         to: mailOptions.to,
-        from: mailOptions.from,
+        from: mailOptions.from.email || mailOptions.from,
+        replyTo: mailOptions.replyTo || mailOptions.from,
         subject: mailOptions.subject,
+        text: mailOptions.text,
         html: mailOptions.html,
       };
       return await sgMail.send(msg);
