@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const contactRoutes = require('./routes/contact.routes');
+const transporter = require('./config/email.config');
 
 // Validate required environment variables
 const requiredEnvVars = ['EMAIL_USER', 'EMAIL_PASS', 'TO_EMAIL'];
@@ -16,6 +17,15 @@ if (missingEnvVars.length > 0) {
   console.log('EMAIL_USER:', process.env.EMAIL_USER);
   console.log('TO_EMAIL:', process.env.TO_EMAIL);
   console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '***' + process.env.EMAIL_PASS.slice(-4) : 'NOT SET');
+  
+  // Test email connection
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.error('❌ Email connection failed:', error.message);
+    } else {
+      console.log('✅ Email server is ready to send messages');
+    }
+  });
 }
 
 const app = express();
