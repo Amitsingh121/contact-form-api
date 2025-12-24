@@ -38,10 +38,16 @@ const submitContactForm = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error sending email:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      command: error.command
+    });
     res.status(500).json({
       success: false,
-      message: 'Message send nahi hua, please try again'
+      message: 'Message send nahi hua, please try again',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

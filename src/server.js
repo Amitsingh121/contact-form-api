@@ -4,6 +4,20 @@ require('dotenv').config();
 
 const contactRoutes = require('./routes/contact.routes');
 
+// Validate required environment variables
+const requiredEnvVars = ['EMAIL_USER', 'EMAIL_PASS', 'TO_EMAIL'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
+  console.error('Please set these in Render Environment settings');
+} else {
+  console.log('✅ All required environment variables are set');
+  console.log('EMAIL_USER:', process.env.EMAIL_USER);
+  console.log('TO_EMAIL:', process.env.TO_EMAIL);
+  console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '***' + process.env.EMAIL_PASS.slice(-4) : 'NOT SET');
+}
+
 const app = express();
 
 // Middleware
