@@ -1,9 +1,42 @@
-const transporter = require('../config/email.config');
+const { createTransporter } = require('../config/email.config');
+const { getProjectConfig } = require('../config/projects.config');
 
 // Contact form submission handler
 const submitContactForm = async (req, res) => {
   try {
     const { name, email, phone, subject, description } = req.body;
+    const { projectId } = req.params;
+
+    // Get project configuration (dynamic based on URL)
+    let emailUser, emailPass, toEmail, projectName;
+    
+    if (projectId) {
+      // Use project-specific configuration
+      const projectValidation = getProjectConfig(projectId);
+      
+      if (!projectValidation.valid) {
+        return res.status(404).json({
+          success: false,
+          message: projectValidation.message
+        });
+      }
+      
+      const config = projectValidation.config;
+      emailUser = config.emailUser;
+      emailPass = config.emailPass;
+      toEmail = config.toEmail;
+      projectName = config.name;
+      
+      console.log(`📧 Processing contact form for project: ${projectName} (${projectId})`);
+    } else {
+      // Fallback to default environment variables for legacy /contact endpoint
+      emailUser = process.env.EMAIL_USER;
+      emailPass = process.env.EMAIL_PASS;
+      toEmail = process.env.TO_EMAIL;
+      projectName = 'Default';
+      
+      console.log('📧 Processing contact form for default project');
+    }
 
     // Validation
     if (!name || !email || !description) {
@@ -12,6 +45,9 @@ const submitContactForm = async (req, res) => {
         message: 'Name, email aur description required hai'
       });
     }
+
+    // Create dynamic transporter for this project
+    const transporter = createTransporter(emailUser, emailPass);
 
     // Email options with improved deliverability
     const emailSubject = `Contact Form: ${subject || 'New Message'}`;
@@ -72,10 +108,10 @@ This email was sent from your website contact form.
     
     const mailOptions = {
       from: {
-        email: process.env.EMAIL_USER,
+        email: emailUser,
         name: 'Contact Form'
       },
-      to: process.env.TO_EMAIL,
+      to: toEmail,
       replyTo: email, // Allow direct reply to the submitter
       subject: emailSubject,
       text: emailText, // Plain text version improves deliverability
@@ -84,6 +120,8 @@ This email was sent from your website contact form.
 
     // Send email
     await transporter.sendMail(mailOptions);
+
+    console.log(`✅ Email sent successfully from ${emailUser} to ${toEmail}`);
 
     res.status(200).json({
       success: true,
