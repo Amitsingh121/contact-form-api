@@ -1,5 +1,6 @@
 const { createTransporter } = require('../config/email.config');
 const { getProjectConfig } = require('../config/projects.config');
+const { getEmailTemplate } = require('../config/templates.config');
 
 // Contact form submission handler
 const submitContactForm = async (req, res) => {
@@ -35,7 +36,7 @@ const submitContactForm = async (req, res) => {
       toEmail = process.env.TO_EMAIL;
       projectName = 'Default';
       
-      console.log('📧 Processing contact form for default project');
+      // console.log('📧 Processing contact form for default project');
     }
 
     // Validation
@@ -49,79 +50,31 @@ const submitContactForm = async (req, res) => {
     // Create dynamic transporter for this project
     const transporter = createTransporter(emailUser, emailPass);
 
-    // Email options with improved deliverability
-    const emailSubject = `Contact Form: ${subject || 'New Message'}`;
-    const emailHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>${emailSubject}</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-          <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">New Contact Form Submission</h2>
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr style="background-color: #f8f9fa;">
-              <td style="padding: 10px; font-weight: bold; width: 30%;">Name:</td>
-              <td style="padding: 10px;">${name}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; font-weight: bold;">Email:</td>
-              <td style="padding: 10px;"><a href="mailto:${email}">${email}</a></td>
-            </tr>
-            <tr style="background-color: #f8f9fa;">
-              <td style="padding: 10px; font-weight: bold;">Phone:</td>
-              <td style="padding: 10px;">${phone || 'Not provided'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; font-weight: bold;">Subject:</td>
-              <td style="padding: 10px;">${subject || 'N/A'}</td>
-            </tr>
-          </table>
-          <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #3498db;">
-            <p style="margin: 0; font-weight: bold;">Message:</p>
-            <p style="margin: 10px 0 0 0; white-space: pre-wrap;">${description}</p>
-          </div>
-          <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
-            <p>This email was sent from your website contact form.</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
-    
-    const emailText = `
-New Contact Form Submission
+    // Get template based on projectId
+    const emailContent = getEmailTemplate(projectId || 'default', {
+      name,
+      email,
+      phone,
+      subject,
+      description
+    });
 
-Name: ${name}
-Email: ${email}
-Phone: ${phone || 'Not provided'}
-Subject: ${subject || 'N/A'}
-
-Message:
-${description}
-
----
-This email was sent from your website contact form.
-    `;
-    
     const mailOptions = {
       from: {
         email: emailUser,
-        name: 'Contact Form'
+        name: emailContent.subject.split(' - ')[0] // Use company name from template
       },
       to: toEmail,
-      replyTo: email, // Allow direct reply to the submitter
-      subject: emailSubject,
-      text: emailText, // Plain text version improves deliverability
-      html: emailHtml
+      replyTo: email,
+      subject: emailContent.subject,
+      text: emailContent.text,
+      html: emailContent.html
     };
 
     // Send email
     await transporter.sendMail(mailOptions);
 
-    console.log(`✅ Email sent successfully from ${emailUser} to ${toEmail}`);
+    // console.log(`✅ Email sent successfully from ${emailUser} to ${toEmail}`);
 
     res.status(200).json({
       success: true,

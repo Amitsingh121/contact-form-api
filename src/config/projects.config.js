@@ -3,17 +3,24 @@ require('dotenv').config();
 // Projects configuration mapping
 const projects = {
   website1: {
+    name: 'Website 1',
     emailUser: process.env.WEBSITE1_EMAIL_USER,
     emailPass: process.env.WEBSITE1_EMAIL_PASS,
     toEmail: process.env.WEBSITE1_TO_EMAIL,
-    name: 'Website 1'
+    allowedOrigins: process.env.WEBSITE1_ALLOWED_ORIGINS 
+      ? process.env.WEBSITE1_ALLOWED_ORIGINS.split(',').map(o => o.trim())
+      : []
   },
   website2: {
+    name: 'Website 2',
     emailUser: process.env.WEBSITE2_EMAIL_USER,
     emailPass: process.env.WEBSITE2_EMAIL_PASS,
     toEmail: process.env.WEBSITE2_TO_EMAIL,
-    name: 'Website 2'
+    allowedOrigins: process.env.WEBSITE2_ALLOWED_ORIGINS 
+      ? process.env.WEBSITE2_ALLOWED_ORIGINS.split(',').map(o => o.trim())
+      : []
   }
+  // Add more projects as needed
 };
 
 // Validate project configuration
@@ -47,7 +54,26 @@ const validateProjectConfig = (projectId) => {
 
 // Get project configuration
 const getProjectConfig = (projectId) => {
-  return validateProjectConfig(projectId);
+  const project = projects[projectId];
+  
+  if (!project) {
+    return {
+      valid: false,
+      message: `Project '${projectId}' not found`
+    };
+  }
+  
+  if (!project.emailUser || !project.emailPass || !project.toEmail) {
+    return {
+      valid: false,
+      message: `Project '${projectId}' is not properly configured`
+    };
+  }
+  
+  return {
+    valid: true,
+    config: project
+  };
 };
 
 module.exports = {
