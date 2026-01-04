@@ -21,13 +21,15 @@ npm install
 cp .env.example .env
 ```
 
-Then edit `.env` with your actual credentials:
+Then edit `.env` and replace the placeholder values with your actual credentials:
 ```
 PORT=3000
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
-TO_EMAIL=recipient-email@gmail.com
+EMAIL_USER=your-email@gmail.com  # Replace with your Gmail address
+EMAIL_PASS=your-app-password      # Replace with your Gmail App Password
+TO_EMAIL=recipient-email@gmail.com  # Replace with recipient email
 ```
+
+**Note**: Use a Gmail App Password, not your regular Gmail password. See the [Gmail App Password Setup](#gmail-app-password-setup) section below.
 
 3. Run the server:
 ```bash
