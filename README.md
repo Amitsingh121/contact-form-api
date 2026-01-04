@@ -16,7 +16,12 @@ A simple Node.js API for handling contact form submissions via email using Nodem
 npm install
 ```
 
-2. Create a `.env` file with the following variables:
+2. Create a `.env` file by copying `.env.example`:
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` with your actual credentials:
 ```
 PORT=3000
 EMAIL_USER=your-email@gmail.com
